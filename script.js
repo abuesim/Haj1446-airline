@@ -6,7 +6,7 @@ const idInput = document.getElementById("idInput");
 // موقع ملف CSV المنظّف
 const DATA_URL = "data/hajj-data.csv"; // غيّر الاسم إذا غيرت اسم الملف
 
-// نعرف ثلاثة قوالب (templates) للرسائل بناءً على رقم الرحلة بعد إزالة المسافات
+// نعرف ثلاثة قوالب (templates) للرسائل بناءً على رقم الرحلة بعد إزالة المسافات وغيرها
 const templates = {
   "SV8043": `
     <div class="info-row"><span>أخي الحاج:</span></div>
@@ -51,7 +51,7 @@ const templates = {
   `,
 };
 
-// نربط كل كود رحلة (بلا مسافات) بكلاس الـCSS المناسب
+// نربط كل كود رحلة (بلا مسافات وأحرف غير أبجدية رقمية) بكلاس الـCSS المناسب
 const colorClassMap = {
   "SV8043": "msg1",
   "SV8049": "msg2",
@@ -95,15 +95,15 @@ searchBtn.addEventListener("click", () => {
       const lastName = found.Family || "";
       const reservation = found["رقم الحجز"] || "";
       let flightCodeRaw = found["رقم الرحلة"] || "";
-      // ازيل أي فراغات من الكود، فـ "SV 8043" يصير "SV8043"
-      const flightCode = flightCodeRaw.replace(/\s+/g, "");
+      // ازيل أي أحرف غير أحرف أو أرقام، فـ "SV 8043)" يصير "SV8043"
+      const flightCode = flightCodeRaw.replace(/[^A-Za-z0-9]/g, "");
 
       // إذا الرحلة ما موجودة ضمن القوالب
       if (!templates[flightCode]) {
         resultDiv.innerHTML = `
           <div class="message-box" style="background-color: #ffecb3; color: #333;">
             <div class="info-row">
-              <span>تنبيه:</span> الرحلة "\${flightCodeRaw}" مو مضافة ضمن القوالب.
+              <span>تنبيه:</span> الرحلة "${flightCodeRaw}" مو مضافة ضمن القوالب.
             </div>
           </div>
         `;
@@ -112,7 +112,7 @@ searchBtn.addEventListener("click", () => {
 
       // جهّز المحتوى باستبدال العلامات
       const templateHtml = templates[flightCode]
-        .replace("{{NameFamily}}", `\${firstName} \${lastName}`)
+        .replace("{{NameFamily}}", \`\${firstName} \${lastName}\`)
         .replace("{{Reservation}}", reservation);
 
       // اصنع صندوق الرسالة وأضف له الكلاس اللوني المناسب
