@@ -7,23 +7,12 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- حقل البحث -->
   <div class="search-container">
-    <input
-      type="text"
-      id="idInput"
-      placeholder="أدخل رقم الهوية"
-      autocomplete="off"
-    />
+    <input type="text" id="idInput" placeholder="أدخل رقم الهوية" autocomplete="off" />
     <button id="searchBtn">ابحث</button>
   </div>
-
-  <!-- هنا بنعرض الرسالة -->
   <div id="resultMessage"></div>
-
-  <!-- نستدعي مكتبة PapaParse عشان نقرأ CSV بالمتصفح -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-  <!-- سكربت المنطق -->
   <script src="script.js"></script>
 </body>
 </html>

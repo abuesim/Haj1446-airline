@@ -1,12 +1,9 @@
-/* تنسيق عام للخط والاتجاه */
 body {
   font-family: "Tahoma", sans-serif;
   direction: rtl;
   padding: 20px;
   background-color: #f5f5f5;
 }
-
-/* صندوق البحث */
 .search-container {
   margin-bottom: 20px;
 }
@@ -30,13 +27,9 @@ body {
 #searchBtn:hover {
   background-color: #1565c0;
 }
-
-/* المنطقة الي نظهر فيها الرسالة */
 #resultMessage {
   margin-top: 30px;
 }
-
-/* تنسيق الصندوق العام لكل رسالة */
 .message-box {
   border: 1px solid #ccc;
   border-radius: 6px;
@@ -46,23 +39,15 @@ body {
   min-width: 320px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-
-/* لون الرسالة الأولى (SV8043): أصفر فاتح */
 .msg1 {
-  background-color: #fff9c4; /* أصفر فاتح */
+  background-color: #fff9c4;
 }
-
-/* لون الرسالة الثانية (SV8049): أخضر فاتح */
 .msg2 {
-  background-color: #dcedc8; /* أخضر فاتح */
+  background-color: #dcedc8;
 }
-
-/* لون الرسالة الثالثة (SV8051): أحمر فاتح */
 .msg3 {
-  background-color: #ffcdd2; /* أحمر فاتح */
+  background-color: #ffcdd2;
 }
-
-/* تنسيق كل سطر معلومات داخل الصندوق */
 .info-row {
   margin: 8px 0;
 }
