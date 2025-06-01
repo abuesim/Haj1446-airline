@@ -10,7 +10,8 @@ const DATA_URL = "data/hajj-data.csv"; // غيّر الاسم إذا غيرت ا
 const templates = {
   "SV8043": `
     <div class="info-row"><span>أخي الحاج:</span></div>
-    <div class="info-row">{{NameFamily}}</div>
+    <div class="info-row"><span>الاسم:</span> {{FirstName}}</div>
+    <div class="info-row"><span>العائلة:</span> {{LastName}}</div>
     <div class="info-row">
       نود ابلاغكم بأن موعد إقلاع الرحلة يوم الأربعاء 8 ذو الحجة، الساعة 10:00 ص من مطار الملك خالد بمدينة الرياض (صالة رقم ٥) 
       الدخول من بوابة رقم (1)،(2) منطقة (B) منصات المعاينة رقم B3 إلى B12
@@ -24,7 +25,8 @@ const templates = {
 
   "SV8049": `
     <div class="info-row"><span>أخي الحاج:</span></div>
-    <div class="info-row">{{NameFamily}}</div>
+    <div class="info-row"><span>الاسم:</span> {{FirstName}}</div>
+    <div class="info-row"><span>العائلة:</span> {{LastName}}</div>
     <div class="info-row">
       نود ابلاغكم بأن موعد إقلاع الرحلة يوم الأربعاء 8 ذو الحجة، الساعة 12:55 ظهراً من مطار الملك خالد بمدينة الرياض (صالة رقم ٥) 
       الدخول من بوابة رقم (1)،(2) منطقة (B) منصات المعاينة رقم B3 إلى B12
@@ -38,7 +40,8 @@ const templates = {
 
   "SV8051": `
     <div class="info-row"><span>أخي الحاج:</span></div>
-    <div class="info-row">{{NameFamily}}</div>
+    <div class="info-row"><span>الاسم:</span> {{FirstName}}</div>
+    <div class="info-row"><span>العائلة:</span> {{LastName}}</div>
     <div class="info-row">
       نود ابلاغكم بأن موعد إقلاع الرحلة يوم الأربعاء 8 ذو الحجة، الساعة 2:00 ظهراً من مطار الملك خالد بمدينة الرياض (صالة رقم ٥) 
       الدخول من بوابة رقم (1)،(2) منطقة (B) منصات المعاينة رقم B3 إلى B12
@@ -75,6 +78,7 @@ searchBtn.addEventListener("click", () => {
     header: true,
     skipEmptyLines: true,
     complete: (results) => {
+      console.log("📥 تم تحميل البيانات: ", results.data.slice(0,5));
       const records = results.data;
 
       // دور على السجل الي يطابق رقم الهوية المدخل
@@ -112,7 +116,8 @@ searchBtn.addEventListener("click", () => {
 
       // جهّز المحتوى باستبدال العلامات
       const templateHtml = templates[flightCode]
-        .replace("{{NameFamily}}", \`\${firstName} \${lastName}\`)
+        .replace("{{FirstName}}", \`\${firstName}\`)
+        .replace("{{LastName}}", \`\${lastName}\`)
         .replace("{{Reservation}}", reservation);
 
       // اصنع صندوق الرسالة وأضف له الكلاس اللوني المناسب
