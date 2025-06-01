@@ -6,44 +6,44 @@ const idInput = document.getElementById("idInput");
 // موقع ملف CSV المنظّف
 const DATA_URL = "data/hajj-data.csv"; // غيّر الاسم إذا غيرت اسم الملف
 
-// نعرف ثلاثة قوالب (templates) للرسائل بناءً على رقم الرحلة
+// نعرف ثلاثة قوالب (templates) للرسائل بناءً على رقم الرحلة بعد إزالة المسافات
 const templates = {
-  "SV 8043": `
+  "SV8043": `
     <div class="info-row"><span>أخي الحاج:</span></div>
-    <div class="info-row">( {{NameFamily}} )</div>
+    <div class="info-row">{{NameFamily}}</div>
     <div class="info-row">
       نود ابلاغكم بأن موعد إقلاع الرحلة يوم الأربعاء 8 ذو الحجة، الساعة 10:00 ص من مطار الملك خالد بمدينة الرياض (صالة رقم ٥) 
       الدخول من بوابة رقم (1)،(2) منطقة (B) منصات المعاينة رقم B3 إلى B12
     </div>
-    <div class="info-row">•  رقم الرحلة: SV 8043</div>
+    <div class="info-row">•  رقم الرحلة: SV8043</div>
     <div class="info-row">•  رقم الحجز: {{Reservation}}</div>
     <div class="info-row">
       تنويه: فضلاً التواجد بالمطار الساعة 7:00 قبل الرحلة بـ 3 ساعات.
     </div>
   `,
 
-  "SV 8049": `
+  "SV8049": `
     <div class="info-row"><span>أخي الحاج:</span></div>
-    <div class="info-row">( {{NameFamily}} )</div>
+    <div class="info-row">{{NameFamily}}</div>
     <div class="info-row">
       نود ابلاغكم بأن موعد إقلاع الرحلة يوم الأربعاء 8 ذو الحجة، الساعة 12:55 ظهراً من مطار الملك خالد بمدينة الرياض (صالة رقم ٥) 
       الدخول من بوابة رقم (1)،(2) منطقة (B) منصات المعاينة رقم B3 إلى B12
     </div>
-    <div class="info-row">•  رقم الرحلة: SV 8049</div>
+    <div class="info-row">•  رقم الرحلة: SV8049</div>
     <div class="info-row">•  رقم الحجز: {{Reservation}}</div>
     <div class="info-row">
       تنويه: فضلاً التواجد بالمطار الساعة 9:55 ص قبل الرحلة بـ 3 ساعات.
     </div>
   `,
 
-  "SV 8051": `
+  "SV8051": `
     <div class="info-row"><span>أخي الحاج:</span></div>
-    <div class="info-row">( {{NameFamily}} )</div>
+    <div class="info-row">{{NameFamily}}</div>
     <div class="info-row">
       نود ابلاغكم بأن موعد إقلاع الرحلة يوم الأربعاء 8 ذو الحجة، الساعة 2:00 ظهراً من مطار الملك خالد بمدينة الرياض (صالة رقم ٥) 
       الدخول من بوابة رقم (1)،(2) منطقة (B) منصات المعاينة رقم B3 إلى B12
     </div>
-    <div class="info-row">•  رقم الرحلة: SV 8051</div>
+    <div class="info-row">•  رقم الرحلة: SV8051</div>
     <div class="info-row">•  رقم الحجز: {{Reservation}}</div>
     <div class="info-row">
       تنويه: فضلاً التواجد بالمطار الساعة 11:00 ص قبل الرحلة بـ 3 ساعات.
@@ -51,11 +51,11 @@ const templates = {
   `,
 };
 
-// نربط كل كود رحلة بكلاس الـCSS المناسب
+// نربط كل كود رحلة (بلا مسافات) بكلاس الـCSS المناسب
 const colorClassMap = {
-  "SV 8043": "msg1",
-  "SV 8049": "msg2",
-  "SV 8051": "msg3",
+  "SV8043": "msg1",
+  "SV8049": "msg2",
+  "SV8051": "msg3",
 };
 
 // لما يضغط المستخدم على زر "ابحث"
@@ -94,14 +94,16 @@ searchBtn.addEventListener("click", () => {
       const firstName = found.Name || "";
       const lastName = found.Family || "";
       const reservation = found["رقم الحجز"] || "";
-      const flightCode = found["رقم الرحلة"] || "";
+      let flightCodeRaw = found["رقم الرحلة"] || "";
+      // ازيل أي فراغات من الكود، فـ "SV 8043" يصير "SV8043"
+      const flightCode = flightCodeRaw.replace(/\s+/g, "");
 
-      // إذا الرحلة ما موجودة ضمن الثلاث قوالب
+      // إذا الرحلة ما موجودة ضمن القوالب
       if (!templates[flightCode]) {
         resultDiv.innerHTML = `
           <div class="message-box" style="background-color: #ffecb3; color: #333;">
             <div class="info-row">
-              <span>تنبيه:</span> الرحلة "\${flightCode}" مو مضافة ضمن القوالب.
+              <span>تنبيه:</span> الرحلة "\${flightCodeRaw}" مو مضافة ضمن القوالب.
             </div>
           </div>
         `;
@@ -110,7 +112,7 @@ searchBtn.addEventListener("click", () => {
 
       // جهّز المحتوى باستبدال العلامات
       const templateHtml = templates[flightCode]
-        .replace("{{NameFamily}}", \`\${firstName} \${lastName}\`)
+        .replace("{{NameFamily}}", `\${firstName} \${lastName}`)
         .replace("{{Reservation}}", reservation);
 
       // اصنع صندوق الرسالة وأضف له الكلاس اللوني المناسب
