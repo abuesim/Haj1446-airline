@@ -5,14 +5,151 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>استعلام الحاج برقم الهوية</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* إضافة تنسيق خاص برسالة الخطأ أسفل البحث */
+    .error-text {
+      color: #d32f2f;
+      margin-top: 6px;
+      font-size: 14px;
+    }
+  </style>
 </head>
 <body>
+  <!-- حقل البحث -->
   <div class="search-container">
-    <input type="text" id="idInput" placeholder="أدخل رقم الهوية" autocomplete="off" />
+    <input
+      type="text"
+      id="idInput"
+      placeholder="أدخل رقم الهوية"
+      autocomplete="off"
+    />
     <button id="searchBtn">ابحث</button>
+    <!-- عنصر جديد لعرض رسالة الخطأ أسفل البحث -->
+    <div id="errorMessage" class="error-text"></div>
   </div>
+
+  <!-- هنا بنعرض الرسالة أو النتيجة -->
   <div id="resultMessage"></div>
+
+  <!-- نستدعي مكتبة PapaParse -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-  <script src="script.js"></script>
+
+  <!-- السكربت المضمن في الصفحة مع التعامل على رسالة الخطأ -->
+  <script>
+    const resultDiv = document.getElementById("resultMessage");
+    const searchBtn = document.getElementById("searchBtn");
+    const idInput = document.getElementById("idInput");
+    const errorDiv = document.getElementById("errorMessage");
+    const DATA_URL = "data/hajj-data.csv";
+
+    const templates = {
+      "SV8043": `
+        <div class="info-row"><span>أخي الحاج:</span></div>
+        <div class="info-row"><span>الاسم:</span> {{FirstName}}</div>
+        <div class="info-row"><span>العائلة:</span> {{LastName}}</div>
+        <div class="info-row">
+          نود ابلاغكم بأن موعد إقلاع الرحلة يوم الأربعاء 8 ذو الحجة، الساعة 10:00 ص من مطار الملك خالد بمدينة الرياض (صالة رقم ٥) 
+          الدخول من بوابة رقم (1)،(2) منطقة (B) منصات المعاينة رقم B3 إلى B12
+        </div>
+        <div class="info-row">•  رقم الرحلة: SV8043</div>
+        <div class="info-row">•  رقم الحجز: {{Reservation}}</div>
+        <div class="info-row">
+          تنويه: فضلاً التواجد بالمطار الساعة 7:00 قبل الرحلة بـ 3 ساعات.
+        </div>
+      `,
+      "SV8049": `
+        <div class="info-row"><span>أخي الحاج:</span></div>
+        <div class="info-row"><span>الاسم:</span> {{FirstName}}</div>
+        <div class="info-row"><span>العائلة:</span> {{LastName}}</div>
+        <div class="info-row">
+          نود ابلاغكم بأن موعد إقلاع الرحلة يوم الأربعاء 8 ذو الحجة، الساعة 12:55 ظهراً من مطار الملك خالد بمدينة الرياض (صالة رقم ٥) 
+          الدخول من بوابة رقم (1)،(2) منطقة (B) منصات المعاينة رقم B3 إلى B12
+        </div>
+        <div class="info-row">•  رقم الرحلة: SV8049</div>
+        <div class="info-row">•  رقم الحجز: {{Reservation}}</div>
+        <div class="info-row">
+          تنويه: فضلاً التواجد بالمطار الساعة 9:55 ص قبل الرحلة بـ 3 ساعات.
+        </div>
+      `,
+      "SV8051": `
+        <div class="info-row"><span>أخي الحاج:</span></div>
+        <div class="info-row"><span>الاسم:</span> {{FirstName}}</div>
+        <div class="info-row"><span>العائلة:</span> {{LastName}}</div>
+        <div class="info-row">
+          نود ابلاغكم بأن موعد إقلاع الرحلة يوم الأربعاء 8 ذو الحجة، الساعة 2:00 ظهراً من مطار الملك خالد بمدينة الرياض (صالة رقم ٥) 
+          الدخول من بوابة رقم (1)،(2) منطقة (B) منصات المعاينة رقم B3 إلى B12
+        </div>
+        <div class="info-row">•  رقم الرحلة: SV8051</div>
+        <div class="info-row">•  رقم الحجز: {{Reservation}}</div>
+        <div class="info-row">
+          تنويه: فضلاً التواجد بالمطار الساعة 11:00 ص قبل الرحلة بـ 3 ساعات.
+        </div>
+      `,
+    };
+
+    const colorClassMap = {
+      "SV8043": "msg1",
+      "SV8049": "msg2",
+      "SV8051": "msg3",
+    };
+
+    searchBtn.addEventListener("click", () => {
+      const idValue = idInput.value.trim();
+      // نظّف رسائل الخطأ والنتيجة
+      errorDiv.textContent = "";
+      resultDiv.innerHTML = "";
+
+      if (idValue === "") {
+        // إذا الحقل فاضي
+        errorDiv.textContent = "الرجاء إدخال رقم الهوية أولاً.";
+        return;
+      }
+
+      // اقرأ ملف CSV
+      Papa.parse(DATA_URL, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: (results) => {
+          const records = results.data;
+          // بحث رقم الهوية (ضد العمود ID)
+          const found = records.find((row) => row.ID === idValue);
+
+          if (!found) {
+            // إذا ما لقيناه
+            errorDiv.textContent = "عذراً: لم يتم العثور على بيانات لرقم الهوية هذا.";
+            return;
+          }
+
+          // جهّز البيانات للإظهار
+          const firstName = found.Name || "";
+          const lastName = found.Family || "";
+          const reservation = found["رقم الحجز"] || "";
+          let flightCodeRaw = found["رقم الرحلة"] || "";
+          const flightCode = flightCodeRaw.replace(/[^A-Za-z0-9]/g, "");
+
+          if (!templates[flightCode]) {
+            errorDiv.textContent = `تنبيه: الرحلة "${flightCodeRaw}" غير مدعومة في القوالب.`;
+            return;
+          }
+
+          // استبدال العلامات وعرض الرسالة
+          const templateHtml = templates[flightCode]
+            .replace("{{FirstName}}", firstName)
+            .replace("{{LastName}}", lastName)
+            .replace("{{Reservation}}", reservation);
+
+          const box = document.createElement("div");
+          box.classList.add("message-box", colorClassMap[flightCode]);
+          box.innerHTML = templateHtml;
+          resultDiv.appendChild(box);
+        },
+        error: (err) => {
+          errorDiv.textContent = "حدث خطأ أثناء قراءة ملف البيانات.";
+          console.error("خطأ في تحميل CSV:", err);
+        },
+      });
+    });
+  </script>
 </body>
 </html>
